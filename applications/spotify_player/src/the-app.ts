@@ -17,8 +17,6 @@ const server = serve({
     "/": homepage,
     "/spotify-embed": spotifyEmbed,
     "/webhooks/spotify/set-track": spotifyTrackIdWebhook,
-    "/spotify-embed": spotifyEmbed,
-    "/webhooks/spotify/set-track": spotifyTrackIdWebhook
     "/api/songs/current": {
       async GET(req) {
         const impl = Effect.gen(function* () {
