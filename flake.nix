@@ -13,11 +13,6 @@
             pkgs.elixir
             pkgs.erlang
           ];
-
-          shellHook = ''
-            export MIX_HOME="$PWD/.mix"
-            yes | mix archive.install hex phx_new
-          '';
         };
       };
     };
