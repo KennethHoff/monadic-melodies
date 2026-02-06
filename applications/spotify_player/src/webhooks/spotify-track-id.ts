@@ -1,10 +1,16 @@
 export const hook = async (req: Request): Promise<Response> => {
-        const trackUri = req.headers.get('track-uri');
+        if (!req.body) {
+                console.log("No body");
+                return new Response("No body");
+        }
+
+        const json = await req.body.json();
+        const trackUri = json['track-uri'];
         if (!trackUri) {
                 console.log("No track uri");
                 return new Response("No track uri");
         }
 
-        console.log("Track uri", trackUri);
+        console.log("Got this uri", trackUri);
         return new Response(trackUri);
 };
