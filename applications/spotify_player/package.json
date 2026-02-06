@@ -1,6 +1,9 @@
 {
   "name": "spotify_player",
   "private": true,
+  "scripts": {
+    "start": "bun run ./the-app.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
