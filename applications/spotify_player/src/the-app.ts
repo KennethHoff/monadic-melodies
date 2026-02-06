@@ -1,7 +1,6 @@
 import { serve } from "bun";
 import homepage from "./index.html";
 import spotifyEmbed from "./spotify-embed.html";
-import { hook as spotifyTrackIdWebhook } from "./webhooks/spotify-track-id.ts";
 import { Effect } from "effect";
 import { Vibe } from "../lib/services/vibe";
 import { Spotify } from "../lib/services/spotify";
@@ -16,7 +15,29 @@ const server = serve({
     // downlevels CSS with Bun's CSS parser and serves the result.
     "/": homepage,
     "/spotify-embed": spotifyEmbed,
-    "/hooks/spotify/set-track": spotifyTrackIdWebhook,
+    "/hooks/spotify/set-track": {
+      async POST(req) {
+        if (!req.body) {
+          console.log("No body");
+          return new Response("No body");
+        }
+
+        const json = await req.json();
+        const trackUri = json["track-uri"];
+        if (!trackUri) {
+          console.log("No track uri");
+          return new Response("No track uri");
+        }
+
+        console.log("Got this uri", trackUri);
+
+        return new Response(
+          JSON.stringify({
+            success: Math.random() < 0.5,
+          }),
+        );
+      },
+    },
     "/api/songs/current": {
       async GET(req) {
         const impl = Effect.gen(function* () {
