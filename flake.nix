@@ -12,6 +12,7 @@
           packages = [
             pkgs.elixir
             pkgs.erlang
+            pkgs.flyctl
           ];
 
           shellHook = ''
