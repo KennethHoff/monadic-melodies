@@ -1,5 +1,4 @@
 import { serve } from "bun";
-import dashboard from "./dashboard.html";
 import homepage from "./index.html";
 
 const server = serve({
@@ -10,8 +9,6 @@ const server = serve({
     // & CSS bundler on them, transpiles any TypeScript, JSX, and TSX,
     // downlevels CSS with Bun's CSS parser and serves the result.
     "/": homepage,
-    // Bundle & route dashboard.html to "/dashboard"
-    "/dashboard": dashboard,
   },
 
   // Enable development mode for:
