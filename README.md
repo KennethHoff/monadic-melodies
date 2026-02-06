@@ -24,13 +24,11 @@ https://nixos.org
 
 Nix is a functional programming language and package manager.
 
-#### Elixir
+#### Effect
 
-https://elixir-lang.org/
+https://effect.website/
 
-Elixir is a functional programming language.
-
-We will use [Phoenix](https://www.phoenixframework.org/) as a Web framework.
+Effect is a functional framework for TypeScript.
 
 ### Zapier
 
