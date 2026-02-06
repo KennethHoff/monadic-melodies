@@ -21,11 +21,12 @@ const server = serve({
       },
       async POST(req) {
         const { name, email } = await req.json();
-        const [user] = await sql`INSERT INTO users (name, email) VALUES (${name}, ${email})`;
+        const [user] =
+          await sql`INSERT INTO users (name, email) VALUES (${name}, ${email})`;
         return Response.json(user);
       },
     },
-    "/api/users/:id": async req => {
+    "/api/users/:id": async (req) => {
       const { id } = req.params;
       const [user] = await sql`SELECT * FROM users WHERE id = ${id}`;
       return Response.json(user);
