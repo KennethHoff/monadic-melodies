@@ -5,8 +5,7 @@ export const hook = async (req: Request): Promise<Response> => {
         }
 
         const json = await req.body.json();
-        const data = json['data'];
-        const trackUri = data['track-uri'];
+        const trackUri = json['track-uri'];
         if (!trackUri) {
                 console.log("No track uri");
                 return new Response("No track uri");
