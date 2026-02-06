@@ -5,6 +5,7 @@ import { Effect } from "effect";
 import { Vibe } from "../lib/services/vibe";
 import { Spotify } from "../lib/services/spotify";
 import { context } from "../lib/context";
+import { getCurrentUri } from "../lib/cache.ts";
 
 const server = serve({
   routes: {
@@ -40,16 +41,26 @@ const server = serve({
     },
     "/api/songs/current": {
       async GET(req) {
+        const current = getCurrentUri();
+
+        return Response.json(current);
+      },
+    },
+    "/api/songs/search": {
+      async GET(req) {
+        const url = new URL(req.url);
+        const query = url.searchParams.get("q");
+
+        if (!query) {
+          return new Response("Missing query parameter 'q'", { status: 400 });
+        }
+
         const impl = Effect.gen(function* () {
-          const vibeService = yield* Vibe;
           const spotifyService = yield* Spotify;
 
-          const vibe = yield* vibeService.current;
-          const song = yield* spotifyService.songFromVibe(vibe);
+          const song = yield* spotifyService.search(query);
 
-          yield* Effect.log(`Current vibe: ${vibe}`);
-
-          return yield* Effect.succeed(song.uri);
+          return yield* Effect.succeed(song);
         });
 
         const runnable = Effect.provide(impl, context).pipe(Effect.either);
