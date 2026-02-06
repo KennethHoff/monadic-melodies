@@ -1,22 +1,23 @@
-import { Effect } from "effect";
+import { Effect, Either } from "effect";
 import { Vibe } from "./services/vibe";
 import { Spotify } from "./services/spotify";
 import { context } from "./context";
 
 const program = Effect.gen(function* () {
-  const vibe = yield* Vibe;
-  const spotify = yield* Spotify;
+  const vibeService = yield* Vibe;
+  const spotifyService = yield* Spotify;
 
-  const currentVibe = yield* vibe.current;
-  const song = yield* spotify.songFromVibe(currentVibe);
+  const vibe = yield* vibeService.current;
+  const song = yield* spotifyService.songFromVibe(vibe);
 
-  yield* Effect.log(`Current vibe: ${currentVibe}`);
+  yield* Effect.log(`Current vibe: ${vibe}`);
 
   return yield* Effect.succeed(
     `Recommended song: ${song.name} by ${song.artists.join(", ")}`,
   );
 });
 
+
 const runnable = Effect.provide(program, context);
 
-const run = () => Effect.runPromise(runnable.pipe(Effect.either));
+export const runner = Effect.runPromise(runnable)

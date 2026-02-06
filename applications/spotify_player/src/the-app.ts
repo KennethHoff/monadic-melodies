@@ -2,6 +2,10 @@ import { serve } from "bun";
 import homepage from "./index.html";
 import spotifyEmbed from "./spotify-embed.html";
 import { hook as spotifyTrackIdWebhook } from "./webhooks/spotify-track-id.ts";
+import { Effect } from "effect";
+import { Vibe } from "../lib/services/vibe";
+import { Spotify } from "../lib/services/spotify";
+import { context } from "../lib/context";
 
 const server = serve({
   routes: {
@@ -12,7 +16,30 @@ const server = serve({
     // downlevels CSS with Bun's CSS parser and serves the result.
     "/": homepage,
     "/spotify-embed": spotifyEmbed,
+    "/webhooks/spotify/set-track": spotifyTrackIdWebhook,
+    "/spotify-embed": spotifyEmbed,
     "/webhooks/spotify/set-track": spotifyTrackIdWebhook
+    "/api/songs/current": {
+      async GET(req) {
+        const impl = Effect.gen(function* () {
+          const vibeService = yield* Vibe;
+          const spotifyService = yield* Spotify;
+
+          const vibe = yield* vibeService.current;
+          const song = yield* spotifyService.songFromVibe(vibe);
+
+          yield* Effect.log(`Current vibe: ${vibe}`);
+
+          return yield* Effect.succeed(song.uri);
+        });
+
+        const runnable = Effect.provide(impl, context).pipe(Effect.either);
+
+        const res = await Effect.runPromise(runnable);
+
+        return Response.json(res);
+      },
+    },
   },
 
   // Enable development mode for:

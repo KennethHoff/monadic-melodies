@@ -21,17 +21,16 @@ export class Spotify extends Context.Tag("SpotifyService")<
 
 export const spotifyService = Spotify.of({
   songFromVibe: (vibe) =>
-    Effect.sync(() => {
-      Math.random() < 0.5 &&
-        (() => {
-          throw new Authfailure();
-        })();
+    Effect.gen(function* () {
+      if (Math.random() < 0.2) {
+        yield* new Authfailure();
+      }
 
       return {
         artists: ["Artist 1", "Artist 2"],
         name: `Song for vibe: ${vibe}`,
-        uri: "spotify:track:1234567890",
-        link: "https://open.spotify.com/track/1234567890",
+        uri: "spotify:track:5NEKjqTQPKiqOiOG8YxLdS",
+        link: "https://open.spotify.com/track/5NEKjqTQPKiqOiOG8YxLdS",
       };
     }),
 });
