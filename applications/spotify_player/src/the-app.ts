@@ -1,6 +1,6 @@
 import { serve } from "bun";
-import dashboard from "./src/dashboard.html";
-import homepage from "./src/index.html";
+import dashboard from "./dashboard.html";
+import homepage from "./index.html";
 
 const server = serve({
   routes: {
