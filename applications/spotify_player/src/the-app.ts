@@ -1,5 +1,7 @@
 import { serve } from "bun";
 import homepage from "./index.html";
+import spotifyEmbed from "./spotify-embed.html";
+import { hook as spotifyTrackIdWebhook } from "./webhooks/spotify-track-id.ts";
 
 const server = serve({
   routes: {
@@ -9,6 +11,8 @@ const server = serve({
     // & CSS bundler on them, transpiles any TypeScript, JSX, and TSX,
     // downlevels CSS with Bun's CSS parser and serves the result.
     "/": homepage,
+    "/spotify-embed": spotifyEmbed,
+    "/webhooks/spotify/set-track": spotifyTrackIdWebhook
   },
 
   // Enable development mode for:
