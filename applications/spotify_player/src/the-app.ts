@@ -16,7 +16,7 @@ const server = serve({
     // downlevels CSS with Bun's CSS parser and serves the result.
     "/": homepage,
     "/spotify-embed": spotifyEmbed,
-    "/webhooks/spotify/set-track": spotifyTrackIdWebhook,
+    "/hooks/spotify/set-track": spotifyTrackIdWebhook,
     "/api/songs/current": {
       async GET(req) {
         const impl = Effect.gen(function* () {
