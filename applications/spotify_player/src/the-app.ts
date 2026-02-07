@@ -66,6 +66,7 @@ const server = serve({
                   "VIBE_ANALYZER_WEBHOOK_URI",
                 );
                 fetch(webhookUrl, { method: "POST" });
+                return yield* Effect.succeed(null);
               }),
             onSome: (uri) => Effect.succeed(uri),
           });
