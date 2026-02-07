@@ -20,23 +20,33 @@ const server = serve({
     "/spotify-embed": spotifyEmbed,
     "/hooks/spotify/set-track": {
       async POST(req) {
+        const payload = await req.json();
+
         const impl = Effect.gen(function* () {
-          yield* Effect.log("Received request to set track", req);
-
           // Parse and Validate
-          const { song, artist } = yield* Effect.tryPromise({
-            try: () => req.json(),
-            catch: () => new JsonParseError(),
-          }).pipe(Effect.flatMap(Schema.decodeUnknown(SetTrackPayload)));
-
           const cache = yield* appCache;
           const cacheKey = "currentSongUri";
+
+          //   req.json().then((payload) => {
+          //     console.log("Received set-track request with payload:", payload);
+          //   });
+
+          // sleep 1 sec
+          //   yield* Effect.sleep(1000)
 
           return yield* cache.get(cacheKey).pipe(
             Effect.flatMap((cachedUri) =>
               Effect.gen(function* () {
                 // Set cache if not set
                 if (Option.isNone(cachedUri)) {
+                  //   const payload = yield* Effect.tryPromise({
+                  //     try: () => req.json(),
+                  //     catch: () => Effect.fail(JsonParseError),
+                  //   });
+
+                  const { artist, song, vibe } =
+                    yield* Schema.decodeUnknown(SetTrackPayload)(payload);
+
                   const spotify = yield* Spotify;
                   const result = yield* spotify.search(`${artist} ${song}`);
                   yield* cache.set(cacheKey, Option.some(result.uri));
@@ -44,13 +54,17 @@ const server = serve({
               }),
             ),
           );
-        });
+        }).pipe(
+          Effect.tapError((err) =>
+            Effect.log("Error processing set-track request", err),
+          ),
+        );
 
-        const runnable = Effect.provide(impl, context).pipe(Effect.either);
+        const runnable = Effect.provide(impl, context); //.pipe(Effect.either);
 
-        const res = await Effect.runPromise(runnable);
+        await Effect.runPromise(runnable);
 
-        return Response.json(res);
+        return Response.json(null);
       },
     },
     "/api/songs/current": {
