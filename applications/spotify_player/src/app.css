@@ -13,6 +13,10 @@
   --color-grid-line: rgba(176, 38, 255, 0.12);
 }
 
+:root {
+    font-size: 20px;
+}
+
 /* ── Scanline overlay ── */
 .scanlines::after {
   content: "";

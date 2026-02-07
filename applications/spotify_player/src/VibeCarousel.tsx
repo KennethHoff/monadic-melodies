@@ -257,7 +257,7 @@ export const VibeCarousel = () => {
                 <span className="text-neon-pink/80 font-mono font-bold text-sm flex-1">
                   {entry.vibe}
                 </span>
-                <span className="text-neon-purple/30 font-mono text-xs shrink-0">
+                <span className="text-neon-purple/50 font-mono text-xs shrink-0">
                   {formatAge(entry.setAt)}
                 </span>
               </li>
