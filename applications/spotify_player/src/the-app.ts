@@ -1,11 +1,13 @@
 import { serve } from "bun";
 import homepage from "./index.html";
 import spotifyEmbed from "./spotify-embed.html";
-import { Effect } from "effect";
+import { Effect, Schema, Option } from "effect";
 import { Vibe } from "../lib/services/vibe";
 import { Spotify } from "../lib/services/spotify";
 import { context } from "../lib/context";
-import { getCurrentUri } from "../lib/cache.ts";
+import { appCache } from "../lib/cache";
+import { JsonParseError } from "../lib/errors";
+import { SetTrackPayload } from "../lib/schemas";
 
 const server = serve({
   routes: {
@@ -18,32 +20,56 @@ const server = serve({
     "/spotify-embed": spotifyEmbed,
     "/hooks/spotify/set-track": {
       async POST(req) {
-        if (!req.body) {
-          console.log("No body");
-          return new Response("No body");
-        }
+        const impl = Effect.gen(function* () {
+          // Parse and Validate
+          const { song, artist } = yield* Effect.tryPromise({
+            try: () => req.json(),
+            catch: () => new JsonParseError(),
+          }).pipe(Effect.flatMap(Schema.decodeUnknown(SetTrackPayload)));
 
-        const json = await req.json();
-        const trackUri = json["track-uri"];
-        if (!trackUri) {
-          console.log("No track uri");
-          return new Response("No track uri");
-        }
+          const cache = yield* appCache;
+          const cacheKey = "currentSongUri";
 
-        console.log("Got this uri", trackUri);
+          return yield* cache.get(cacheKey).pipe(
+            Effect.flatMap((cachedUri) =>
+              Effect.gen(function* () {
+                // Set cache if not set
+                if (Option.isNone(cachedUri)) {
+                  const spotify = yield* Spotify;
+                  const result = yield* spotify.search(`${artist} ${song}`);
+                  yield* cache.set(cacheKey, Option.some(result.uri));
+                }
+              }),
+            ),
+          );
+        });
 
-        return new Response(
-          JSON.stringify({
-            success: Math.random() < 0.5,
-          }),
-        );
+        const runnable = Effect.provide(impl, context).pipe(Effect.either);
+
+        const res = await Effect.runPromise(runnable);
+
+        return Response.json(res);
       },
     },
     "/api/songs/current": {
       async GET(req) {
-        const current = getCurrentUri();
+        const impl = Effect.gen(function* () {
+          const cache = yield* appCache;
+          const cacheKey = "currentSongUri";
 
-        return Response.json(current);
+          const current = yield* cache.get(cacheKey);
+
+          return yield* Option.match(current, {
+            onNone: () => Effect.succeed(undefined),
+            onSome: (uri) => Effect.succeed(uri),
+          });
+        });
+
+        const runnable = Effect.provide(impl, context);
+
+        const res = await Effect.runPromise(runnable);
+
+        return Response.json(res);
       },
     },
     "/api/songs/search": {
