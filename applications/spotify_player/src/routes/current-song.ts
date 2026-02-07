@@ -20,11 +20,12 @@ export default {
           Effect.gen(function* () {
             yield* Effect.log("Cache empty, triggering webhook");
             yield* triggerWebhook;
-            return { songUri: null, vibe: null };
+            return { songUri: null, vibe: null, setAt: null, stale: true };
           }),
         onSome: (data) =>
           Effect.gen(function* () {
-            if (isStale(data)) {
+            const stale = isStale(data);
+            if (stale) {
               yield* Effect.log("Cache stale, triggering webhook", {
                 songUri: data.songUri,
                 vibe: data.vibe,
@@ -37,7 +38,12 @@ export default {
                 vibe: data.vibe,
               });
             }
-            return { songUri: data.songUri, vibe: data.vibe };
+            return {
+              songUri: data.songUri,
+              vibe: data.vibe,
+              setAt: data.setAt,
+              stale,
+            };
           }),
       });
     }).pipe(Effect.withSpan("route.currentSong"));

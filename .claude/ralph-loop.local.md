@@ -3,7 +3,7 @@ active: true
 iteration: 1
 max_iterations: 50
 completion_promise: "COMPLETE"
-started_at: "2026-02-07T10:35:17Z"
+started_at: "2026-02-07T10:51:12Z"
 ---
 
-@applications/spotify_player/lib/cache.ts Make sure the caching is working. The polling from the frontend currently trigger the webhook every time. Output <promise>COMPLETE</promise> when done.
+Inspect the requirements in tasks.md and pick the most important requirement to implement. When that task is done, mark it as complete and move on to the next task. When all the tasks ar done output <promise>COMPLETE</promise>.
