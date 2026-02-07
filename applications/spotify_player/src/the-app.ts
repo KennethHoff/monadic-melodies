@@ -21,6 +21,8 @@ const server = serve({
     "/hooks/spotify/set-track": {
       async POST(req) {
         const impl = Effect.gen(function* () {
+          yield* Effect.log("Received request to set track", req);
+
           // Parse and Validate
           const { song, artist } = yield* Effect.tryPromise({
             try: () => req.json(),
