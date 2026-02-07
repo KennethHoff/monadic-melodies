@@ -1,16 +1,13 @@
 import { serve } from "bun";
 import homepage from "./index.html";
-import spotifyEmbed from "./spotify-embed.html";
-import { Effect, Schema, Option, Config, Ref } from "effect";
+import { Effect } from "effect";
+import { Vibe } from "../lib/services/vibe";
 import { Spotify } from "../lib/services/spotify";
 import { context } from "../lib/context";
-import { SongCache } from "../lib/cache";
-import { SetTrackPayload } from "../lib/schemas";
 
 const server = serve({
   routes: {
     "/": homepage,
-    "/spotify-embed": spotifyEmbed,
     "/hooks/spotify/set-track": {
       async POST(req) {
         const payload = await req.json();

@@ -2,16 +2,21 @@
   "name": "spotify_player",
   "private": true,
   "scripts": {
-    "start": "bun run ./src/the-app.ts"
+    "start": "bun run ./src/the-app.ts",
+    "dev": "bun --hot ./src/the-app.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@spotify/web-api-ts-sdk": "^1.2.0",
-    "effect": "^3.19.16"
+    "effect": "^3.19.16",
+    "react": "^19",
+    "react-dom": "^19"
   }
 }

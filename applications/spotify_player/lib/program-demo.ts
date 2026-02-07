@@ -17,7 +17,6 @@ const program = Effect.gen(function* () {
   );
 });
 
-
 const runnable = Effect.provide(program, context);
 
-export const runner = Effect.runPromise(runnable)
+export const runner = Effect.runPromise(runnable);
