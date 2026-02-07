@@ -14,7 +14,7 @@ const server = serve({
     "/api/songs/search": searchSongs,
   },
 
-  development: true,
+  development: process.env.NODE_ENV !== "production",
 });
 
 console.log(`Listening on ${server.url}`);
