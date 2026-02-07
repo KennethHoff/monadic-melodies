@@ -1,7 +1,7 @@
 import { serve } from "bun";
 import homepage from "./index.html";
 import spotifyEmbed from "./spotify-embed.html";
-import { Effect, Schema, Option } from "effect";
+import { Effect, Schema, Option, Config } from "effect";
 import { Vibe } from "../lib/services/vibe";
 import { Spotify } from "../lib/services/spotify";
 import { context } from "../lib/context";
@@ -60,7 +60,13 @@ const server = serve({
           const current = yield* cache.get(cacheKey);
 
           return yield* Option.match(current, {
-            onNone: () => Effect.succeed(undefined),
+            onNone: () =>
+              Effect.gen(function* () {
+                const webhookUrl = yield* Config.string(
+                  "VIBE_ANALYZER_WEBHOOK_URI",
+                );
+                fetch(webhookUrl, { method: "POST" });
+              }),
             onSome: (uri) => Effect.succeed(uri),
           });
         });
