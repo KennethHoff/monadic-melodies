@@ -14,9 +14,6 @@ type SpotifySong = {
 export class Spotify extends Context.Tag("SpotifyService")<
   Spotify,
   {
-    readonly songFromVibe: (
-      vibe: string,
-    ) => Effect.Effect<SpotifySong, ConfigError | AuthError, never>;
     readonly search: (
       query: string,
     ) => Effect.Effect<SpotifySong, ServiceError | ConfigError, never>;
@@ -33,19 +30,9 @@ const getClient = Effect.gen(function* () {
 });
 
 export const spotifyService = Spotify.of({
-  songFromVibe: (vibe) =>
-    Effect.gen(function* () {
-      const client = yield* getClient;
-
-      return {
-        artists: ["Artist 1", "Artist 2"],
-        name: `Song for vibe: ${vibe}`,
-        uri: "spotify:track:5NEKjqTQPKiqOiOG8YxLdS",
-        link: "https://open.spotify.com/track/5NEKjqTQPKiqOiOG8YxLdS",
-      };
-    }),
   search: (query: string) =>
     Effect.gen(function* () {
+      yield* Effect.log("Searching Spotify", { query });
       const client = yield* getClient;
 
       const res = yield* Effect.promise(() => client.search(query, ["track"]));
@@ -53,14 +40,22 @@ export const spotifyService = Spotify.of({
       const track = res.tracks.items[0];
 
       if (!track) {
+        yield* Effect.log("No track found for query", { query });
         return yield* new ServiceError();
       }
 
-      return {
+      const song = {
         artists: track.artists.map((artist) => artist.name),
         name: track.name,
         uri: track.uri,
         link: track.external_urls.spotify,
       } satisfies SpotifySong;
-    }),
+
+      yield* Effect.log("Track found", {
+        query,
+        songName: song.name,
+        uri: song.uri,
+      });
+      return song;
+    }).pipe(Effect.withSpan("Spotify.search", { attributes: { query } })),
 });
