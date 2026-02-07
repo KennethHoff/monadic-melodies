@@ -1,16 +1,10 @@
-import { Cache, Duration, Effect, Option } from "effect";
+import { Context, Effect, Option, Ref } from "effect";
 
-export const cachekeys = {
-  currentSongUri: "currentSongUri",
-};
+export class SongCache extends Context.Tag("SongCache")<
+  SongCache,
+  Ref.Ref<Option.Option<string>>
+>() {}
 
-type CacheKey = keyof typeof cachekeys;
-
-export const appCache = Cache.make({
-  capacity: 10,
-  timeToLive: Duration.minutes(1),
-  // Since we are "pushing" data manually, we tell the lookup to return None
-  lookup: (key: CacheKey) => Effect.succeed(Option.none<string>()),
-});
-
-
+export const songCacheInstance = Effect.runSync(
+  Ref.make(Option.none<string>()),
+);
