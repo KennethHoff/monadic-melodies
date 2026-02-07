@@ -1,10 +1,18 @@
-import { Context, Effect, Option, Ref } from "effect";
+import { Cache, Context, Duration, Effect, Option } from "effect";
+
+const CACHE_KEY = "currentSongUri";
 
 export class SongCache extends Context.Tag("SongCache")<
   SongCache,
-  Ref.Ref<Option.Option<string>>
+  Cache.Cache<string, Option.Option<string>, never>
 >() {}
 
 export const songCacheInstance = Effect.runSync(
-  Ref.make(Option.none<string>()),
+  Cache.make({
+    capacity: 10,
+    timeToLive: Duration.minutes(1),
+    lookup: (_key: string) => Effect.succeed(Option.none<string>()),
+  }),
 );
+
+export { CACHE_KEY };
