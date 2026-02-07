@@ -1,6 +1,7 @@
 import { SpotifyApi, type PartialSearchResult } from "@spotify/web-api-ts-sdk";
 import { Effect, Context, Data, Config } from "effect";
 import type { ConfigError } from "effect/ConfigError";
+import { ServiceError, type AuthError } from "../errors";
 
 type SpotifySong = {
   artists: string[];
@@ -8,11 +9,6 @@ type SpotifySong = {
   uri: string;
   link: string;
 };
-
-type searchResult = Required<Pick<PartialSearchResult, "tracks">>;
-
-class AuthError extends Data.TaggedError("Authfailure")<{}> {}
-class ServiceError extends Data.TaggedError("ServiceFailure")<{}> {}
 
 // Declaring a tag for the Spotify service
 export class Spotify extends Context.Tag("SpotifyService")<
