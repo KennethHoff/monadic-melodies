@@ -8,6 +8,19 @@ import { context } from "../lib/context";
 const server = serve({
   routes: {
     "/": homepage,
+    "/hooks/new-vibe": {
+      async POST(req) {
+        const payload = await req.json();
+
+        const vibe = payload['vibe'];
+
+        console.log("New vibe unlocked", vibe);
+
+        return Response.json({
+                unlocked: true
+        });
+      },
+    },
     "/hooks/spotify/set-track": {
       async POST(req) {
         const payload = await req.json();
