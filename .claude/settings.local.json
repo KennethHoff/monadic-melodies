@@ -4,7 +4,11 @@
       "Bash(npx tsc:*)",
       "Bash(npx typescript:*)",
       "Bash(bunx tsc:*)",
-      "Bash(./node_modules/.bin/tsc:*)"
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(bun add:*)",
+      "Bash(bunx tailwindcss:*)",
+      "Bash(bunx @tailwindcss/cli:*)",
+      "Bash(bun run:*)"
     ]
   }
 }

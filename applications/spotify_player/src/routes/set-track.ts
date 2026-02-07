@@ -1,7 +1,7 @@
 import { Effect, Schema, Option, Ref } from "effect";
 import { Spotify } from "../../lib/services/spotify";
 import { context } from "../../lib/context";
-import { SongCache, isStale } from "../../lib/cache";
+import { SongCache, VibeHistory } from "../../lib/cache";
 import { SetTrackPayload } from "../../lib/schemas";
 
 export default {
@@ -13,22 +13,18 @@ export default {
       const cache = yield* SongCache;
       const current = yield* Ref.get(cache);
 
-      const shouldUpdate = Option.match(current, {
-        onNone: () => true,
-        onSome: (data) => isStale(data),
-      });
-
-      if (!shouldUpdate) {
-        yield* Effect.log("Cache is fresh, skipping update");
-        return;
-      }
-
       const { artist, song, vibe } =
         yield* Schema.decodeUnknown(SetTrackPayload)(payload);
 
       yield* Effect.log("Searching for track", { artist, song, vibe });
       const spotify = yield* Spotify;
       const result = yield* spotify.search(`${artist} ${song}`);
+
+      const history = yield* VibeHistory;
+      yield* Option.match(current, {
+        onNone: () => Effect.void,
+        onSome: (prev) => Ref.update(history, (h) => [prev, ...h]),
+      });
 
       yield* Ref.set(
         cache,

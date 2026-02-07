@@ -2,10 +2,13 @@
   "name": "spotify_player",
   "private": true,
   "scripts": {
-    "start": "bun run ./src/the-app.ts",
+    "css:build": "bunx @tailwindcss/cli -i ./src/app.css -o ./src/built.css",
+    "css:dev": "bunx @tailwindcss/cli -i ./src/app.css -o ./src/built.css --watch",
+    "start": "bun run css:build && bun run ./src/the-app.ts",
     "dev": "bun --hot ./src/the-app.ts"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
     "@types/bun": "latest",
     "@types/react": "^19",
     "@types/react-dom": "^19"
@@ -15,8 +18,10 @@
   },
   "dependencies": {
     "@spotify/web-api-ts-sdk": "^1.2.0",
+    "daisyui": "^5.5.18",
     "effect": "^3.19.16",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "tailwindcss": "^4.1.18"
   }
 }

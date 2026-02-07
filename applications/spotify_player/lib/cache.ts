@@ -17,5 +17,14 @@ export const songCacheInstance = Effect.runSync(
   Ref.make(Option.none<CachedSongData>()),
 );
 
+export class VibeHistory extends Context.Tag("VibeHistory")<
+  VibeHistory,
+  Ref.Ref<CachedSongData[]>
+>() {}
+
+export const vibeHistoryInstance = Effect.runSync(
+  Ref.make<CachedSongData[]>([]),
+);
+
 export const isStale = (data: CachedSongData): boolean =>
   Date.now() - data.setAt > STALE_AFTER_MS;

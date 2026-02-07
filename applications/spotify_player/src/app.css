@@ -1,0 +1,163 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* ── Retrowave / synthwave custom theme ── */
+@theme {
+  --color-neon-pink: #ff2d95;
+  --color-neon-cyan: #00f0ff;
+  --color-neon-purple: #b026ff;
+  --color-neon-yellow: #ffe600;
+  --color-retro-dark: #0a0a1a;
+  --color-retro-card: #12122a;
+  --color-retro-border: #1e1e3f;
+  --color-grid-line: rgba(176, 38, 255, 0.12);
+}
+
+/* ── Scanline overlay ── */
+.scanlines::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.06) 0px,
+    rgba(0, 0, 0, 0.06) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* ── Perspective grid background ── */
+.retro-grid {
+  position: relative;
+  background-color: var(--color-retro-dark);
+}
+
+.retro-grid::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--color-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.7) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ── Neon glow utilities ── */
+.neon-text-pink {
+  color: var(--color-neon-pink);
+  text-shadow:
+    0 0 7px var(--color-neon-pink),
+    0 0 20px rgba(255, 45, 149, 0.5),
+    0 0 40px rgba(255, 45, 149, 0.25);
+}
+
+.neon-text-cyan {
+  color: var(--color-neon-cyan);
+  text-shadow:
+    0 0 7px var(--color-neon-cyan),
+    0 0 20px rgba(0, 240, 255, 0.5),
+    0 0 40px rgba(0, 240, 255, 0.25);
+}
+
+.neon-text-purple {
+  color: var(--color-neon-purple);
+  text-shadow:
+    0 0 7px var(--color-neon-purple),
+    0 0 20px rgba(176, 38, 255, 0.5),
+    0 0 40px rgba(176, 38, 255, 0.25);
+}
+
+.neon-border {
+  border-color: var(--color-neon-purple);
+  box-shadow:
+    0 0 5px rgba(176, 38, 255, 0.3),
+    inset 0 0 5px rgba(176, 38, 255, 0.1);
+}
+
+.neon-border-pink {
+  border-color: var(--color-neon-pink);
+  box-shadow:
+    0 0 5px rgba(255, 45, 149, 0.3),
+    inset 0 0 5px rgba(255, 45, 149, 0.1);
+}
+
+.neon-border-cyan {
+  border-color: var(--color-neon-cyan);
+  box-shadow:
+    0 0 5px rgba(0, 240, 255, 0.3),
+    inset 0 0 5px rgba(0, 240, 255, 0.1);
+}
+
+/* ── Glitch flicker for the title ── */
+@keyframes glitch {
+  0%, 100% { text-shadow: 0 0 7px var(--color-neon-cyan), 0 0 20px rgba(0, 240, 255, 0.5); }
+  2% { text-shadow: -2px 0 var(--color-neon-pink), 2px 0 var(--color-neon-cyan); }
+  4% { text-shadow: 0 0 7px var(--color-neon-cyan), 0 0 20px rgba(0, 240, 255, 0.5); }
+  41% { text-shadow: 0 0 7px var(--color-neon-cyan), 0 0 20px rgba(0, 240, 255, 0.5); }
+  42% { text-shadow: 2px 0 var(--color-neon-pink), -2px 0 var(--color-neon-purple); }
+  44% { text-shadow: 0 0 7px var(--color-neon-cyan), 0 0 20px rgba(0, 240, 255, 0.5); }
+  80% { text-shadow: 0 0 7px var(--color-neon-cyan), 0 0 20px rgba(0, 240, 255, 0.5); }
+  81% { text-shadow: -1px 0 var(--color-neon-pink), 1px 0 var(--color-neon-cyan); }
+  83% { text-shadow: 0 0 7px var(--color-neon-cyan), 0 0 20px rgba(0, 240, 255, 0.5); }
+}
+
+.glitch-text {
+  animation: glitch 4s infinite;
+}
+
+/* ── Keyframes ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vibePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulse-neon {
+  0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--color-neon-cyan), 0 0 10px var(--color-neon-cyan); }
+  50% { opacity: 0.7; box-shadow: 0 0 2px var(--color-neon-cyan), 0 0 5px var(--color-neon-cyan); }
+}
+
+@keyframes flicker {
+  0%, 19.9%, 22%, 62.9%, 64%, 64.9%, 70%, 100% { opacity: 1; }
+  20%, 21.9%, 63%, 63.9%, 65%, 69.9% { opacity: 0.4; }
+}
+
+/* ── Horizon sun gradient (decorative) ── */
+.retro-sun {
+  background: linear-gradient(
+    180deg,
+    var(--color-neon-yellow) 0%,
+    var(--color-neon-pink) 50%,
+    var(--color-neon-purple) 100%
+  );
+  mask-image: repeating-linear-gradient(
+    0deg,
+    #000 0px,
+    #000 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  -webkit-mask-image: repeating-linear-gradient(
+    0deg,
+    #000 0px,
+    #000 3px,
+    transparent 3px,
+    transparent 6px
+  );
+}

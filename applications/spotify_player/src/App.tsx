@@ -1,4 +1,3 @@
-import "./the-app.css";
 import { VibeCarousel } from "./VibeCarousel.tsx";
 
 export const App = () => {

@@ -7,6 +7,12 @@ type SongData = {
   stale: boolean;
 };
 
+type HistoryEntry = {
+  songUri: string;
+  vibe: string;
+  setAt: number;
+};
+
 const POLL_INTERVAL_MS = 5_000;
 const STALE_THRESHOLD_MS = 60_000;
 
@@ -49,6 +55,28 @@ const useCurrentSong = () => {
   return { data, loading, error, justUpdated, refetch: fetchCurrent };
 };
 
+const useVibeHistory = () => {
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+
+  const fetchHistory = useCallback(async () => {
+    try {
+      const res = await fetch("/api/vibes/history");
+      const json: HistoryEntry[] = await res.json();
+      setHistory(json);
+    } catch {
+      // silently ignore history fetch errors
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchHistory();
+    const id = setInterval(fetchHistory, POLL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [fetchHistory]);
+
+  return history;
+};
+
 const formatAge = (setAt: number): string => {
   const seconds = Math.floor((Date.now() - setAt) / 1000);
   if (seconds < 60) return `${seconds}s ago`;
@@ -61,12 +89,12 @@ const formatAge = (setAt: number): string => {
 const SpotifyEmbed = ({ uri }: { uri: string }) => {
   const trackId = uri.replace("spotify:track:", "");
   return (
-    <div className="rounded-2xl overflow-hidden animate-[fadeIn_0.5s_ease-out]">
+    <div className="rounded-xl overflow-hidden animate-[fadeIn_0.5s_ease-out] border border-neon-purple/30 neon-border">
       <iframe
         src={`https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`}
         width="100%"
         height="152"
-        frameBorder="0"
+        style={{ border: 0 }}
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         className="rounded-xl"
@@ -76,13 +104,20 @@ const SpotifyEmbed = ({ uri }: { uri: string }) => {
 };
 
 const Pulse = () => (
-  <span className="relative inline-block w-2 h-2 rounded-full bg-success">
-    <span className="absolute inset-[-4px] rounded-full border-2 border-success animate-ping" />
+  <span className="relative inline-block w-2.5 h-2.5 rounded-full bg-neon-cyan">
+    <span className="absolute inset-[-4px] rounded-full border-2 border-neon-cyan animate-ping opacity-60" />
   </span>
+);
+
+const RetroSun = () => (
+  <div className="flex justify-center py-4">
+    <div className="retro-sun w-16 h-16 rounded-full" />
+  </div>
 );
 
 export const VibeCarousel = () => {
   const { data, loading, error, justUpdated } = useCurrentSong();
+  const history = useVibeHistory();
   const [ageText, setAgeText] = useState("");
 
   useEffect(() => {
@@ -96,10 +131,10 @@ export const VibeCarousel = () => {
   if (loading) {
     return (
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col items-center gap-4 py-12">
-          <span className="loading loading-spinner loading-lg text-primary" />
-          <p className="text-base-content/50 text-sm animate-pulse">
-            Tuning in...
+        <div className="flex flex-col items-center gap-4 py-16">
+          <div className="w-10 h-10 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin" />
+          <p className="neon-text-cyan text-sm font-mono tracking-widest animate-pulse">
+            INITIALIZING...
           </p>
         </div>
       </div>
@@ -109,8 +144,10 @@ export const VibeCarousel = () => {
   if (error) {
     return (
       <div className="flex flex-col gap-6">
-        <div role="alert" className="alert alert-error">
-          <span>{error}</span>
+        <div className="border border-neon-pink/50 neon-border-pink rounded-lg p-4 bg-neon-pink/5 animate-[fadeIn_0.4s_ease-out]">
+          <p className="neon-text-pink font-mono text-sm">
+            ERROR: {error}
+          </p>
         </div>
       </div>
     );
@@ -122,80 +159,110 @@ export const VibeCarousel = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="text-center pb-4 border-b border-base-300">
-        <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          &#9835; Monadic Melodies
+      {/* Header */}
+      <header className="text-center pb-5 border-b border-neon-purple/20">
+        <h1 className="text-3xl font-extrabold tracking-tight neon-text-cyan glitch-text font-mono">
+          MONADIC MELODIES
         </h1>
+        <p className="text-neon-purple/50 text-xs font-mono tracking-[0.3em] mt-1">
+          HEXATHON VIBE SYSTEM v0.69
+        </p>
       </header>
 
+      {/* Empty state */}
       {isEmpty ? (
-        <div className="card bg-base-200 border border-dashed border-base-300 animate-[fadeIn_0.4s_ease-out]">
-          <div className="card-body items-center text-center">
-            <p className="text-base-content/50">
-              No vibe set yet. Say something in the channel to set the mood!
+        <div className="animate-[fadeIn_0.4s_ease-out]">
+          <RetroSun />
+          <div className="border border-dashed border-neon-pink/30 rounded-lg bg-retro-card/80 p-8 text-center">
+            <p className="neon-text-pink text-lg font-mono font-bold mb-2 animate-[flicker_3s_infinite]">
+              NO SIGNAL
+            </p>
+            <p className="text-neon-cyan/60 font-mono text-sm leading-relaxed">
+              Post a message in the Slack channel to activate the vibe analyzer
+              and set the mood.
             </p>
           </div>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
+          {/* Current vibe card */}
           <div
-            className={`card bg-base-200 border border-primary/15 relative overflow-hidden animate-[fadeIn_0.4s_ease-out] ${
+            className={`rounded-lg border border-neon-purple/30 neon-border bg-retro-card/80 relative overflow-hidden animate-[fadeIn_0.4s_ease-out] ${
               justUpdated ? "animate-[vibePop_0.5s_ease-out]" : ""
             }`}
           >
-            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" />
-            <div className="card-body items-center gap-3">
-              <Pulse />
-              <span className="text-xs uppercase tracking-widest text-base-content/40">
-                Current Vibe
-              </span>
-              <span className="text-4xl font-extrabold tracking-tight bg-gradient-to-br from-white to-primary bg-clip-text text-transparent">
+            {/* Top neon stripe */}
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-neon-cyan to-transparent" />
+
+            <div className="flex flex-col items-center gap-3 p-6">
+              <div className="flex items-center gap-2">
+                <Pulse />
+                <span className="text-xs uppercase tracking-[0.3em] neon-text-cyan font-mono">
+                  Current Vibe
+                </span>
+              </div>
+              <span className="text-4xl font-extrabold tracking-tight neon-text-pink font-mono text-center">
                 {data?.vibe}
               </span>
             </div>
           </div>
 
+          {/* Stale warning */}
           {isStale && (
-            <div
-              role="alert"
-              className="alert alert-warning animate-[slideDown_0.4s_ease-out]"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              <span>
-                This vibe is getting old ({ageText}). Write something in the
-                channel to refresh it!
-              </span>
+            <div className="border border-neon-yellow/40 rounded-lg bg-neon-yellow/5 p-3 animate-[slideDown_0.4s_ease-out]">
+              <p className="text-neon-yellow font-mono text-sm text-center">
+                <span className="animate-[flicker_2s_infinite] inline-block">
+                  WARNING:
+                </span>{" "}
+                Vibe decaying ({ageText}). Post in the channel to refresh.
+              </p>
             </div>
           )}
 
+          {/* Age indicator */}
           {!isStale && data?.setAt && (
-            <p className="text-center text-xs text-base-content/40 animate-[fadeIn_0.4s_ease-out]">
-              Updated {ageText}
+            <p className="text-center text-xs text-neon-purple/40 font-mono tracking-widest animate-[fadeIn_0.4s_ease-out]">
+              SYNCED {ageText}
             </p>
           )}
 
+          {/* Spotify player */}
           {data?.songUri && <SpotifyEmbed uri={data.songUri} />}
 
+          {/* Toast */}
           {justUpdated && (
-            <div className="toast toast-center toast-bottom z-50">
-              <div className="alert alert-info shadow-lg">
-                <span className="font-semibold">New vibe just dropped!</span>
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+              <div className="border border-neon-cyan/50 neon-border-cyan rounded-lg bg-retro-card px-5 py-3 animate-[slideDown_0.3s_ease-out]">
+                <span className="neon-text-cyan font-mono font-bold text-sm">
+                  NEW VIBE DETECTED
+                </span>
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* History */}
+      {history.length > 0 && (
+        <div className="animate-[fadeIn_0.4s_ease-out]">
+          <h2 className="text-xs font-mono font-bold uppercase tracking-[0.3em] neon-text-purple mb-3">
+            Vibe Log
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {history.map((entry) => (
+              <li
+                key={entry.setAt}
+                className="rounded-lg bg-retro-card/60 border border-retro-border px-4 py-3 flex items-center gap-3"
+              >
+                <span className="text-neon-pink/80 font-mono font-bold text-sm flex-1">
+                  {entry.vibe}
+                </span>
+                <span className="text-neon-purple/30 font-mono text-xs shrink-0">
+                  {formatAge(entry.setAt)}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
